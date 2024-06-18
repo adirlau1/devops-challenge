@@ -38,13 +38,24 @@ jobs:
         continue-on-error: true
         working-directory: ./terraform
       
-      - name: Import Existing Security Group and Destroy Old EC2 Instances (If Apply fails)
+      - name: Import Existing Security Group and Old EC2 Instances (If Apply fails)
         if: steps.apply.outcome == 'failure' # This will run if the previous step failed
         run: |
           SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --region eu-central-1 --filters Name=group-name,Values=allow_http_ssh --query 'SecurityGroups[*].GroupId' --output text)
           terraform import module.security_group.aws_security_group.allow_http_ssh $SECURITY_GROUP_ID
-          terraform destroy -auto-approve -target aws_instance.old_instance
-
+          INSTANCE_IDS=$(aws ec2 describe-instances \
+            --region eu-central-1 --query "Reservations[*].Instances[?State.Name=='running'].InstanceId" \
+            --output text)
+          echo "INSTANCE_IDS=$INSTANCE_IDS" >> $GITHUB_ENV
+        working-directory: ./terraform
+      
+      - name: Import Existing Instances to Terraform State
+        if: env.INSTANCE_IDS != '' # This will run if the import step was necessary
+        run: |
+          for INSTANCE_ID in $INSTANCE_IDS; do
+            terraform import aws_instance.instance_$INSTANCE_ID $INSTANCE_ID
+          done
+          terraform destroy -auto-approve
         working-directory: ./terraform
 
       - name: Terraform Apply (Retry after import)
