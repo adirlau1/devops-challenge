@@ -32,8 +32,17 @@ jobs:
         working-directory: ./terraform
 
       - name: Terraform Apply
+        id: apply
         if: ${{ github.ref == 'refs/heads/main' }} && ${{ github.event_name == 'push' }}
         run: terraform apply -auto-approve tfplan
+        continue-on-error: true
+        working-directory: ./terraform
+      
+      - name: Terraform Destroy and Re-apply (If Apply fails)
+        if: steps.apply.outcome == 'failure'
+        run: |
+          terraform destroy -auto-approve
+          terraform apply -auto-approve
         working-directory: ./terraform
 
 
