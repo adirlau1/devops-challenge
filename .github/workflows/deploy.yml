@@ -38,12 +38,19 @@ jobs:
         continue-on-error: true
         working-directory: ./terraform
       
-      - name: Terraform Destroy and Re-apply (If Apply fails)
+      - name: Terraform Destroy (If Apply fails)
         if: steps.apply.outcome == 'failure'
         run: |
-          terraform destroy -auto-approve
-          terraform apply -auto-approve
+          terraform destroy -target=aws_instance.node_app_instance -auto-approve
+          terraform destroy -target=module.security_group.aws_security_group.allow_http_ssh -auto-approve
         working-directory: ./terraform
+
+      - name: Terraform Apply (Retry after destroy)
+        if: steps.apply.outcome == 'failure'
+        run: terraform apply -auto-approve
+        working-directory: ./terraform
+
+  
 
 
         
