@@ -34,17 +34,19 @@ jobs:
       - name: Terraform Apply
         id: apply
         if: ${{ github.ref == 'refs/heads/main' }} && ${{ github.event_name == 'push' }}
-        run: terraform apply -auto-approve tfplan || true
+        run: terraform apply -auto-approve tfplan
         continue-on-error: true
         working-directory: ./terraform
       
       - name: Import Existing Security Group (If Apply fails)
-        if: failure() # This will run if the previous step failed
-        run: terraform import module.security_group.aws_security_group.allow_http_ssh sg-0e079a7fde17a5054
+        if: steps.apply.outcome == 'failure' # This will run if the previous step failed
+        run: |
+          SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --region eu-central-1 --filters Name=group-name,Values=allow_http_ssh --query 'SecurityGroups[*].GroupId' --output text)
+          terraform import module.security_group.aws_security_group.allow_http_ssh $SECURITY_GROUP_ID
         working-directory: ./terraform
 
       - name: Terraform Apply (Retry after import)
-        if: failure() # This will run if the import step was necessary
+        if: steps.apply.outcome == 'failure' # This will run if the import step was necessary
         run: terraform apply -auto-approve
         working-directory: ./terraform
 
