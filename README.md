@@ -63,6 +63,7 @@ Submit the link to your GitHub repository to vlad@qed.team.
 
 ### Repository Structure
 
+```
 .github/workflows
 ├── build.yml
 ├── deploy.yml
@@ -87,7 +88,7 @@ package-lock.json
 package.json
 README.md
 yarn.lock
-
+```
 
 
 ### Building and Running the Application Locally
@@ -95,8 +96,8 @@ yarn.lock
 1. **Clone the repository:**
 
     ```bash
-    git clone <your-repository-url>
-    cd <your-repository-directory>
+    git clone git@github.com:adirlau1/devops-challenge.git
+    cd devops-challenge
     ```
 
 2. **Install dependencies:**
@@ -116,13 +117,13 @@ yarn.lock
 1. **Build the Docker image:**
 
     ```bash
-    docker build -t your-dockerhub-username/your-app-name .
+    docker build -t adirlau/my-node-app .
     ```
 
 2. **Run the Docker container:**
 
     ```bash
-    docker run -d -p 3000:3000 your-dockerhub-username/your-app-name
+    docker run -d -p 3000:3000 adirlau/my-node-app
     ```
 
    The application should now be accessible at `http://localhost:3000`.
