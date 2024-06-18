@@ -63,30 +63,31 @@ Submit the link to your GitHub repository to vlad@qed.team.
 
 ### Repository Structure
 
-├── .github/workflows
-│ ├── build.yml
-│ └── deploy.yml
-├── tests
-│ └── test.js
-├── bin
-├── node_modules
-├── public
-├── routes
-├── terraform
-│ ├── security_group_module
-│ │ └── main.tf
-│ ├── aws_provider.tf
-│ ├── main.tf
-│ └── variables.tf
-├── views
-├── .gitignore
-├── app.js
-├── Dockerfile
-├── eslint.config.mjs
-├── package-lock.json
-├── package.json
-├── README.md
-└── yarn.lock
+.github/workflows
+├── build.yml
+├── deploy.yml
+tests
+└── test.js
+bin
+node_modules
+public
+routes
+terraform
+├── security_group_module
+│ └── main.tf
+├── aws_provider.tf
+├── main.tf
+└── variables.tf
+views
+.gitignore
+app.js
+Dockerfile
+eslint.config.mjs
+package-lock.json
+package.json
+README.md
+yarn.lock
+
 
 
 ### Building and Running the Application Locally
@@ -126,25 +127,41 @@ Submit the link to your GitHub repository to vlad@qed.team.
 
 ### Setting up the Infrastructure using Terraform
 
-1. **Navigate to the Terraform directory:**
+1. **Configure AWS CLI:**
+
+    ```bash
+    aws configure
+    ```
+
+    Follow the prompts to enter your AWS Access Key ID, Secret Access Key, region, and output format.
+
+2. **Set AWS Credentials as Environment Variables:**
+
+    ```bash
+    export AWS_ACCESS_KEY_ID=your-access-key-id
+    export AWS_SECRET_ACCESS_KEY=your-secret-access-key
+    export AWS_DEFAULT_REGION=your-aws-region
+    ```
+
+3. **Navigate to the Terraform directory:**
 
     ```bash
     cd terraform
     ```
 
-2. **Initialize Terraform:**
+4. **Initialize Terraform:**
 
     ```bash
     terraform init
     ```
 
-3. **Plan the infrastructure changes:**
+5. **Plan the infrastructure changes:**
 
     ```bash
     terraform plan -out=tfplan
     ```
 
-4. **Apply the infrastructure changes:**
+6. **Apply the infrastructure changes:**
 
     ```bash
     terraform apply -auto-approve tfplan
@@ -175,6 +192,26 @@ This workflow triggers upon the successful completion of the `Build Pipeline` an
 3. Initializes Terraform
 4. Plans and applies the Terraform infrastructure changes
 5. Handles importing existing resources and retrying the apply if necessary
+
+### Configuring Secrets in GitHub Repository
+
+1. **Go to your GitHub repository:**
+   - Navigate to your GitHub repository.
+   - Click on `Settings`.
+
+2. **Set up GitHub Secrets:**
+   - In the left sidebar, click on `Secrets` under the `Security` section.
+   - Click on `New repository secret`.
+
+3. **Add the following secrets:**
+
+   - `AWS_ACCESS_KEY_ID`
+   - `AWS_SECRET_ACCESS_KEY`
+   - `AWS_DEFAULT_REGION`
+   - `DOCKER_USERNAME`
+   - `DOCKER_PASSWORD`
+
+   For each secret, provide the respective value.
 
 ### Additional Notes
 
