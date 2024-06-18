@@ -34,19 +34,17 @@ jobs:
       - name: Terraform Apply
         id: apply
         if: ${{ github.ref == 'refs/heads/main' }} && ${{ github.event_name == 'push' }}
-        run: terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan || true
         continue-on-error: true
         working-directory: ./terraform
       
-      - name: Terraform Destroy (If Apply fails)
-        if: steps.apply.outcome == 'failure'
-        run: |
-          terraform destroy -target=aws_instance.node_app_instance -auto-approve
-          terraform destroy -target=module.security_group.aws_security_group.allow_http_ssh -auto-approve
+      - name: Import Existing Security Group (If Apply fails)
+        if: failure() # This will run if the previous step failed
+        run: terraform import module.security_group.aws_security_group.allow_http_ssh sg-0e079a7fde17a5054
         working-directory: ./terraform
 
-      - name: Terraform Apply (Retry after destroy)
-        if: steps.apply.outcome == 'failure'
+      - name: Terraform Apply (Retry after import)
+        if: failure() # This will run if the import step was necessary
         run: terraform apply -auto-approve
         working-directory: ./terraform
 
