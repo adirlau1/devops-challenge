@@ -56,13 +56,15 @@ jobs:
           echo "INSTANCE_IDS=${INSTANCE_IDS}" >> $GITHUB_ENV
         working-directory: ./terraform
                 
-      - name: Import Existing Instances to Terraform State
+      - name: Import Existing Instances to Terraform State and Terminate existing EC2 in this region
         if: env.INSTANCE_IDS != '' # This will run if the import step was necessary
         run: |
           for INSTANCE_ID in $INSTANCE_IDS; do
-            terraform import aws_instance.instance_$INSTANCE_ID $INSTANCE_ID
+            aws ec2 terminate-instances --instance-ids $INSTANCE_ID
+            echo "Terminating instance $INSTANCE_ID"
           done
-          terraform destroy -auto-approve
+          # Wait for all instances to be terminated before proceeding
+          aws ec2 wait instance-terminated --instance-ids $INSTANCE_IDS
         working-directory: ./terraform
 
       - name: Terraform Apply (Retry after import)
@@ -71,8 +73,5 @@ jobs:
         working-directory: ./terraform
 
   
-
-
-        
 
         
