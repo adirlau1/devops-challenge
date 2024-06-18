@@ -122,8 +122,11 @@ yarn.lock
 2. **Run the Docker container:**
 
     ```bash
-    docker run -p 80:80 your-dockerhub-username/your-app-name
+    docker run -d -p 3000:3000 your-dockerhub-username/your-app-name
     ```
+
+   The application should now be accessible at `http://localhost:3000`.
+
 
 ### Setting up the Infrastructure using Terraform
 
@@ -166,6 +169,9 @@ yarn.lock
     ```bash
     terraform apply -auto-approve tfplan
     ```
+
+   After the infrastructure is set up, the application should be accessible at `http://<ec2-public-ip>:3000`.
+
 
 ### CI/CD Pipeline
 
