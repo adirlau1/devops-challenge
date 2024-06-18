@@ -41,14 +41,21 @@ jobs:
       - name: Import Existing Security Group and Old EC2 Instances (If Apply fails)
         if: steps.apply.outcome == 'failure' # This will run if the previous step failed
         run: |
+          # Retrieve the security group ID for the security group named "allow_http_ssh"
           SECURITY_GROUP_ID=$(aws ec2 describe-security-groups --region eu-central-1 --filters Name=group-name,Values=allow_http_ssh --query 'SecurityGroups[*].GroupId' --output text)
+
+          # Import the security group into the Terraform state
           terraform import module.security_group.aws_security_group.allow_http_ssh $SECURITY_GROUP_ID
+
+          # Retrieve the instance IDs of all running EC2 instances in the "eu-central-1" region
           INSTANCE_IDS=$(aws ec2 describe-instances \
-            --region eu-central-1 --query "Reservations[*].Instances[?State.Name=='running'].InstanceId" \
-            --output text)
-          echo "INSTANCE_IDS=$INSTANCE_IDS" >> $GITHUB_ENV
+          --region eu-central-1 --query "Reservations[*].Instances[?State.Name=='running'].InstanceId" \
+          --output text)
+
+          # format the setting of the environment variable correctly for GitHub Actions
+          echo "INSTANCE_IDS=${INSTANCE_IDS}" >> $GITHUB_ENV
         working-directory: ./terraform
-      
+                
       - name: Import Existing Instances to Terraform State
         if: env.INSTANCE_IDS != '' # This will run if the import step was necessary
         run: |
